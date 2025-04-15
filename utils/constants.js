@@ -1,11 +1,11 @@
 export const QUESTION_CATEGORIES = {
-	DATABASES: 'Databases',
-	CODING_AND_ALGORITHMS: "Coding and Algorithms",
-	MACHINE_LEARNING: 'Machine Learning',
-	ANALYTICS_AND_EXPERIMENTS: "Analytics and Experiments",
-	STATISTICS_AND_PROBABILITY: "Statistics and Probability",
-	BEHAVIORAL: 'Behavioral',
-	OTHER: 'Other',
+	DATABASES: 'databases',
+	CODING_AND_ALGORITHMS: "coding and algorithms",
+	MACHINE_LEARNING: 'machine learning',
+	ANALYTICS_AND_EXPERIMENTS: "analytics and experiments",
+	STATISTICS_AND_PROBABILITY: "statistics and probability",
+	BEHAVIORAL: 'behavioral',
+	OTHER: 'other',
 }
 
 export const QUESTION_DIFFICULTIES = {

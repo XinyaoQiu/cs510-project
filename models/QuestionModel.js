@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { QUESTION_CATEGORIES, QUESTION_DIFFICULTIES } from '../utils/constants';
+import { QUESTION_CATEGORIES, QUESTION_DIFFICULTIES } from '../utils/constants.js';
 
 const QuestionSchema = new mongoose.Schema(
     {

@@ -11,7 +11,8 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 
 // routers
-import jobRouter from './routes/jobRouter.js';
+import questionRouter from './routes/questionRouter.js';
+import answerRouter from './routes/answerRouter.js';
 import authRouter from './routes/authRouter.js';
 import userRouter from './routes/userRouter.js';
 // public
@@ -33,7 +34,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 if (process.env.NODE_ENV === 'development') {
 	app.use(morgan('dev'));
 }
-app.use(express.static(path.resolve(__dirname, './client/dist')));
+// app.use(express.static(path.resolve(__dirname, './client/dist')));
 app.use(cookieParser());
 app.use(express.json());
 app.use(helmet());
@@ -47,18 +48,18 @@ app.get('/api/v1/test', (req, res) => {
 	res.json({ msg: 'test route' });
 });
 
-app.use('/api/v1/questions', authenticateUser, jobRouter);
-app.use('/api/v1/answers', authenticateUser, jobRouter);
+app.use('/api/v1/questions', authenticateUser, questionRouter);
+app.use('/api/v1/answers', authenticateUser, answerRouter);
 app.use('/api/v1/users', authenticateUser, userRouter);
 app.use('/api/v1/auth', authRouter);
 
-app.get('*', (req, res) => {
-	res.sendFile(path.resolve(__dirname, './client/dist', 'index.html'));
-});
+// app.get('*', (req, res) => {
+// 	res.sendFile(path.resolve(__dirname, './client/dist', 'index.html'));
+// });
 
-app.use('*', (req, res) => {
-	res.status(404).json({ msg: 'not found' });
-});
+// app.use('*', (req, res) => {
+// 	res.status(404).json({ msg: 'not found' });
+// });
 
 app.use(errorHandlerMiddleware);
 

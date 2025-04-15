@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {
-    getQuestions,
+    getAllQuestions,
     createQuestion,
     getQuestion,
     updateQuestion,
@@ -8,7 +8,7 @@ import {
 } from '../controllers/questionController.js';
 import {
     validateQuestionInput,
-    validateIdParam,
+    validateQuestionIdParam,
 } from '../middleware/validationMiddleware.js';
 import { checkForTestUser } from '../middleware/authMiddleware.js';
 
@@ -16,13 +16,13 @@ const router = Router();
 
 router
     .route('/')
-    .get(getQuestions)
+    .get(getAllQuestions)
     .post(checkForTestUser, validateQuestionInput, createQuestion);
 
 router
     .route('/:id')
-    .get(validateIdParam, getQuestion)
-    .patch(checkForTestUser, validateQuestionInput, validateIdParam, updateQuestion)
-    .delete(checkForTestUser, validateIdParam, deleteQuestion);
+    .get(validateQuestionIdParam, getQuestion)
+    .patch(checkForTestUser, validateQuestionInput, validateQuestionIdParam, updateQuestion)
+    .delete(checkForTestUser, validateQuestionIdParam, deleteQuestion);
 
 export default router;

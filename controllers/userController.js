@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import User from '../models/UserModel.js';
-import Job from '../models/JobModel.js';
+import Question from '../models/QuestionModel.js';
+import Answer from '../models/AnswerModel.js';
 import cloudinary from 'cloudinary';
 import { formatImage } from '../middleware/multerMiddleware.js';
 
@@ -11,8 +12,9 @@ export const getCurrentUser = async (req, res) => {
 };
 export const getApplicationStats = async (req, res) => {
 	const users = await User.countDocuments();
-	const jobs = await Job.countDocuments();
-	res.status(StatusCodes.OK).json({ users, jobs });
+	const questions = await Question.countDocuments();
+	const answers = await Answer.countDocuments();
+	res.status(StatusCodes.OK).json({ users, questions, answers });
 };
 export const updateUser = async (req, res) => {
 	const newUser = { ...req.body };

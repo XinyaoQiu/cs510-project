@@ -1,4 +1,4 @@
-import Question from "../models/QuestionModel";
+import Question from "../models/QuestionModel.js";
 import { StatusCodes } from "http-status-codes";
 
 export const getAllQuestions = async (req, res) => {

@@ -4,10 +4,11 @@ import {
 	NotFoundError,
 	UnauthorizedError,
 } from '../errors/customErrors.js';
-import { JOB_STATUS, JOB_TYPE } from '../utils/constants.js';
 import mongoose from 'mongoose';
-import Job from '../models/JobModel.js';
 import User from '../models/UserModel.js';
+import Question from '../models/QuestionModel.js';
+import Answer from '../models/AnswerModel.js';
+import { QUESTION_CATEGORIES, QUESTION_DIFFICULTIES } from '../utils/constants.js';
 
 const withValidationErrors = (validateValues) => {
 	return [
@@ -35,7 +36,6 @@ const withValidationErrors = (validateValues) => {
 export const validateQuestionInput = withValidationErrors([
 	body('title').notEmpty().withMessage('title is required'),
 	body('question').notEmpty().withMessage('question is required'),
-	body('company').notEmpty().withMessage('company is required'),
 	body('category')
 		.isIn(Object.values(QUESTION_CATEGORIES))
 		.withMessage('invalid category value'),
@@ -44,17 +44,34 @@ export const validateQuestionInput = withValidationErrors([
 		.withMessage('invalid difficulty value'),
 ])
 
-export const validateIdParam = withValidationErrors([
+export const validateAnswerInput = withValidationErrors([
+	body('answer').notEmpty().withMessage('answer is required'),
+	body('question')
+		.notEmpty()
+		.withMessage('question is required')
+		.custom(async (value, { req }) => {
+			const isValidMongoId = mongoose.Types.ObjectId.isValid(value);
+			if (!isValidMongoId) throw new BadRequestError('invalid MongoDB id');
+			const question = await Question.findById(value);
+			if (!question) throw new NotFoundError(`no question with id ${value}`);
+		})
+])
+
+export const validateQuestionIdParam = withValidationErrors([
 	param('id').custom(async (value, { req }) => {
 		const isValidMongoId = mongoose.Types.ObjectId.isValid(value);
 		if (!isValidMongoId) throw new BadRequestError('invalid MongoDB id');
-		const job = await Job.findById(value);
-		if (!job) throw new NotFoundError(`no job with id ${value}`);
-		const isAdmin = req.user.role === 'admin';
-		const isOwner = req.user.userId === job.createdBy.toString();
+		const question = await Question.findById(value);
+		if (!question) throw new NotFoundError(`no question with id ${value}`);
+	}),
+]);
 
-		if (!isAdmin && !isOwner)
-			throw new UnauthorizedError('not authorized to access this route');
+export const validateAnswerIdParam = withValidationErrors([
+	param('id').custom(async (value, { req }) => {
+		const isValidMongoId = mongoose.Types.ObjectId.isValid(value);
+		if (!isValidMongoId) throw new BadRequestError('invalid MongoDB id');
+		const answer = await Answer.findById(value);
+		if (!answer) throw new NotFoundError(`no answer with id ${value}`);
 	}),
 ]);
 
