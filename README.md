@@ -1,1 +1,3 @@
 # cs510-project
+
+PLEASE CHANGE FILE `env` TO `.env` AND MODIFY VALUES
