@@ -20,7 +20,7 @@ const withValidationErrors = (validateValues) => {
 
 				const firstMessage = errorMessages[0];
 				console.log(Object.getPrototypeOf(firstMessage));
-				if (errorMessages[0].startsWith('no job')) {
+				if (errorMessages[0].startsWith('no ')) {
 					throw new NotFoundError(errorMessages);
 				}
 				if (errorMessages[0].startsWith('not authorized')) {

@@ -1,7 +1,7 @@
 {
-	"name": "jobify",
+	"name": "interwise",
 	"version": "1.0.0",
-	"description": "[Jobify](https://mern-jobify-v2.onrender.com/)",
+	"description": "[Interwise](https://mern-interwise-v2.onrender.com/)",
 	"main": "index.js",
 	"type": "module",
 	"scripts": {
