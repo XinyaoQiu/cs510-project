@@ -1,3 +1,8 @@
 NODE_ENV=development
 PORT=5000
 MONGO_URL=mongodb+srv://root:rootpassword@cluster0.iwzhrtq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+JWT_SECRET=secret
+JWT_EXPIRES_IN=1d
+CLOUD_NAME=dbuexlrdl
+CLOUD_API_KEY=229192886628484
+CLOUD_API_SECRET=ORAgtfPh4hreQzmd8nb0dBUjcIU
