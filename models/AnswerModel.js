@@ -16,4 +16,6 @@ const AnswerSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+AnswerSchema.index({ question: 1 });
+
 export default mongoose.model('Answer', AnswerSchema);

@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import User from '../models/UserModel.js';
 import Question from '../models/QuestionModel.js';
 import Answer from '../models/AnswerModel.js';
+import Comment from '../models/CommentModel.js';
 import { QUESTION_CATEGORIES, QUESTION_DIFFICULTIES } from '../utils/constants.js';
 
 const withValidationErrors = (validateValues) => {
@@ -57,6 +58,27 @@ export const validateAnswerInput = withValidationErrors([
 		})
 ])
 
+export const validateCommentInput = withValidationErrors([
+	body('text').notEmpty().withMessage('text is required'),
+	body('parentType')
+		.isIn(['Question', 'Answer'])
+		.withMessage('invalid parent type'),
+	body('parentId')
+		.notEmpty()
+		.withMessage('parent id is required')
+		.custom(async (value, { req }) => {
+			const isValidMongoId = mongoose.Types.ObjectId.isValid(value);
+			if (!isValidMongoId) throw new BadRequestError('invalid MongoDB id');
+			if (req.body.parentType === 'Question') {
+				const question = await Question.findById(value);
+				if (!question) throw new NotFoundError(`no question with id ${value}`);
+			} else if (req.body.parentType === 'Answer') {
+				const answer = await Answer.findById(value);
+				if (!answer) throw new NotFoundError(`no answer with id ${value}`);
+			}
+		})
+])
+
 export const validateQuestionIdParam = withValidationErrors([
 	param('id').custom(async (value, { req }) => {
 		const isValidMongoId = mongoose.Types.ObjectId.isValid(value);
@@ -74,6 +96,15 @@ export const validateAnswerIdParam = withValidationErrors([
 		if (!answer) throw new NotFoundError(`no answer with id ${value}`);
 	}),
 ]);
+
+export const validateCommentIdParam = withValidationErrors([
+	param('id').custom(async (value, { req }) => {
+		const isValidMongoId = mongoose.Types.ObjectId.isValid(value);
+		if (!isValidMongoId) throw new BadRequestError('invalid MongoDB id');
+		const comment = await Comment.findById(value);
+		if (!comment) throw new NotFoundError(`no comment with id ${value}`);
+	}),
+])
 
 export const validateRegisterInput = withValidationErrors([
 	body('name').notEmpty().withMessage('name is required'),
