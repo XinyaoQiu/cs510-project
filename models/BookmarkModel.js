@@ -1,0 +1,25 @@
+import mongoose from "mongoose";
+
+const BookmarkSchema = new mongoose.Schema(
+    {
+        itemType: {
+            type: String,
+            required: true,
+            enum: ['Question', 'Answer'],
+        },
+        item: {
+            type: mongoose.Types.ObjectId,
+            required: true,
+            refPath: 'itemType',
+        },
+        user: {
+            type: mongoose.Types.ObjectId,
+            ref: 'User'
+        },
+    },
+    { timestamps: true }
+);
+
+BookmarkSchema.index({ itemType: 1, item: 1, user: 1 }, { unique: true });
+
+export default mongoose.model("Bookmark", BookmarkSchema);

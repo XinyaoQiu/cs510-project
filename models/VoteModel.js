@@ -2,11 +2,6 @@ import mongoose from 'mongoose';
 
 const VoteSchema = new mongoose.Schema(
     {
-        user: {
-            type: mongoose.Types.ObjectId,
-            ref: 'User',
-            required: true,
-        },
         itemType: {
             type: String,
             required: true,
@@ -20,13 +15,17 @@ const VoteSchema = new mongoose.Schema(
         voteValue: {
             type: Number,
             required: true,
-            enum: [1, -1], // 1 for like, -1 for dislike
-        }
+            enum: [1, 0, -1], // 1 for like, 0 for no vote, -1 for dislike
+        },
+        user: {
+            type: mongoose.Types.ObjectId,
+            ref: 'User'
+        },
     },
-    { timestamps: true } // Adds createdAt and updatedAt timestamps
+    { timestamps: true }
 );
 
-VoteSchema.index({ user: 1, itemType: 1, item: 1 }, { unique: true });
+VoteSchema.index({ itemType: 1, item: 1, user: 1 }, { unique: true });
 
 VoteSchema.index({ itemType: 1, item: 1, voteType: 1 });
 

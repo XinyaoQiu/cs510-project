@@ -56,7 +56,57 @@ export const getAllQuestions = async (req, res) => {
 };
 
 export const getQuestion = async (req, res) => {
-    const question = await Question.findById(req.params.id);
+    const { id: questionId } = req.params;
+
+    const pipeline = [
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(questionId)
+            }
+        },
+        {
+            $lookup: { from: 'answers', localField: '_id', foreignField: 'question', as: 'answerDocs' }
+        },
+        {
+            $lookup: {
+                from: 'comments',
+                let: { questionId: '$_id' },
+                pipeline: [
+                    { $match: { $expr: { $and: [{ $eq: ['$parentId', '$$questionId'] }, { $eq: ['$parentType', 'Question'] }] } } },
+                    { $project: { _id: 1 } }
+                ],
+                as: 'commentDocs'
+            }
+        },
+        {
+            $lookup: {
+                from: 'votes',
+                let: { questionId: '$_id' },
+                pipeline: [
+                    { $match: { $expr: { $and: [{ $eq: ['$item', '$$questionId'] }, { $eq: ['$itemType', 'Question'] }] } } },
+                    { $project: { _id: 1, voteType: 1 } }
+                ],
+                as: 'voteDocs'
+            }
+        },
+        {
+            $addFields: {
+                likeCount: { $size: { $filter: { input: '$voteDocs', as: 'vote', cond: { $eq: ['$$vote.voteValue', '1'] } } } },
+                dislikeCount: { $size: { $filter: { input: '$voteDocs', as: 'vote', cond: { $eq: ['$$vote.voteValue', '-1'] } } } }
+            }
+        },
+        {
+            $project: {
+                title: 1, question: 1, company: 1, category: 1, difficulty: 1, createdBy: 1, createdAt: 1, updatedAt: 1,
+                likeCount: 1, dislikeCount: 1, voteDocs: 0
+            }
+        },
+        { $limit: 1 }
+    ];
+
+    const results = await Question.aggregate(pipeline);
+
+    const question = results[0];
     res.status(StatusCodes.OK).json({ question });
 };
 
