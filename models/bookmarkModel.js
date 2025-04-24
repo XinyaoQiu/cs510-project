@@ -16,6 +16,11 @@ const BookmarkSchema = new mongoose.Schema(
             type: mongoose.Types.ObjectId,
             ref: 'User'
         },
+        value: {
+            type: Number,
+            required: true,
+            enum: [1, 0]
+        }
     },
     { timestamps: true }
 );

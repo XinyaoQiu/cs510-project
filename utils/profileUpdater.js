@@ -1,5 +1,5 @@
 // utils/profileUpdater.js
-import UserProfile from '../models/UserProfileModel.js';
+import UserProfile from '../models/userProfileModel.js';
 
 export const updateUserProfileWithQuestion = async (userId, question) => {
     let profile = await UserProfile.findOne({ userId });
@@ -17,6 +17,12 @@ export const updateUserProfileWithQuestion = async (userId, question) => {
     if (diff) {
         const current = profile.difficultyPreference.get(diff) || 0;
         profile.difficultyPreference.set(diff, current + 1);
+    }
+
+    const company = question.company;
+    if (company) {
+        const current = profile.companyPreference.get(company) || 0;
+        profile.companyPreference.set(company, current + 1);
     }
 
     const qid = question._id.toString();

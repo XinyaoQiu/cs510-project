@@ -18,6 +18,11 @@ const UserProfileSchema = new mongoose.Schema(
             of: Number,
             default: {},
         },
+        companyPreference: {
+            type: Map,
+            of: Number,
+            default: {},
+        },
         recentInteractedQuestions: {
             type: [mongoose.Types.ObjectId],
             default: [],

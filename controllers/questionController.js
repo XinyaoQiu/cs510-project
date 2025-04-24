@@ -1,7 +1,9 @@
-import Question from "../models/QuestionModel.js";
+import Question from "../models/questionModel.js";
+import PageView from "../models/pageViewModel.js";
 import { StatusCodes } from "http-status-codes";
 import redis from "../utils/redis.js";
-import updateUserProfileWithQuestion from "../utils/profileUpdater.js";
+import { updateUserProfileWithQuestion } from "../utils/profileUpdater.js";
+import mongoose from "mongoose";
 
 export const getAllQuestions = async (req, res) => {
     const { search, category, difficulty, sort, userId } = req.query;
@@ -31,8 +33,8 @@ export const getAllQuestions = async (req, res) => {
     const sortOptions = {
         newest: '-createdAt',
         oldest: 'createdAt',
-        'a-z': 'question',
-        'z-a': '-question',
+        'a-z': 'title',
+        'z-a': '-title',
     };
 
     const sortKey = sortOptions[sort] || sortOptions.newest;
@@ -76,7 +78,7 @@ export const getQuestion = async (req, res) => {
                 let: { questionId: '$_id' },
                 pipeline: [
                     { $match: { $expr: { $and: [{ $eq: ['$parentId', '$$questionId'] }, { $eq: ['$parentType', 'Question'] }] } } },
-                    { $project: { _id: 1 } }
+                    { $project: { _id: 1, text: 1, createdAt: 1, createdBy: 1 } }
                 ],
                 as: 'commentDocs'
             }
@@ -87,21 +89,33 @@ export const getQuestion = async (req, res) => {
                 let: { questionId: '$_id' },
                 pipeline: [
                     { $match: { $expr: { $and: [{ $eq: ['$item', '$$questionId'] }, { $eq: ['$itemType', 'Question'] }] } } },
-                    { $project: { _id: 1, voteType: 1 } }
+                    { $project: { _id: 1, value: 1 } }
                 ],
                 as: 'voteDocs'
             }
         },
         {
+            $lookup: {
+                from: 'bookmarks',
+                let: { questionId: '$_id' },
+                pipeline: [
+                    { $match: { $expr: { $and: [{ $eq: ['$item', '$$questionId'] }, { $eq: ['$itemType', 'Question'] }] } } },
+                    { $project: { _id: 1, value: 1 } }
+                ],
+                as: 'bookmarkDocs'
+            }
+        },
+        {
             $addFields: {
-                likeCount: { $size: { $filter: { input: '$voteDocs', as: 'vote', cond: { $eq: ['$$vote.voteValue', '1'] } } } },
-                dislikeCount: { $size: { $filter: { input: '$voteDocs', as: 'vote', cond: { $eq: ['$$vote.voteValue', '-1'] } } } }
+                likeCount: { $size: { $filter: { input: '$voteDocs', as: 'vote', cond: { $eq: ['$$vote.value', 1] } } } },
+                dislikeCount: { $size: { $filter: { input: '$voteDocs', as: 'vote', cond: { $eq: ['$$vote.value', -1] } } } },
+                bookmarked: { $size: { $filter: { input: '$bookmarkDocs', as: 'bookmark', cond: { $eq: ['$$bookmark.value', 1] } } } }
             }
         },
         {
             $project: {
                 title: 1, question: 1, company: 1, category: 1, difficulty: 1, createdBy: 1, createdAt: 1, updatedAt: 1,
-                likeCount: 1, dislikeCount: 1, voteDocs: 0
+                likeCount: 1, dislikeCount: 1, bookmarked: 1, answerDocs: 1, commentDocs: 1
             }
         },
         { $limit: 1 }
@@ -111,11 +125,11 @@ export const getQuestion = async (req, res) => {
 
     const question = results[0];
 
-    const redisKey = `pv:${userId}:${id}`;
+    const redisKey = `pv:${userId}:${questionId}`;
     const alreadyViewed = await redis.get(redisKey);
 
     if (!alreadyViewed) {
-        await PageView.create({ userId, questionId: id });
+        await PageView.create({ userId, questionId });
         await updateUserProfileWithQuestion(userId, question);
         await redis.set(redisKey, 1, 'EX', 60);
     }

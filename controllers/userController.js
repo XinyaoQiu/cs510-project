@@ -1,11 +1,12 @@
 import { StatusCodes } from 'http-status-codes';
-import User from '../models/UserModel.js';
-import Question from '../models/QuestionModel.js';
-import Answer from '../models/AnswerModel.js';
+import User from '../models/userModel.js';
+import Question from '../models/questionModel.js';
+import Answer from '../models/answerModel.js';
 import cloudinary from 'cloudinary';
 import { formatImage } from '../middleware/multerMiddleware.js';
-import UserProfile from '../models/UserProfile.js';
+import UserProfile from '../models/userProfileModel.js';
 import redis from '../utils/redis.js';
+import mongoose from 'mongoose';
 
 export const getCurrentUser = async (req, res) => {
 	const user = await User.findOne({ _id: req.user.userId });
@@ -39,7 +40,8 @@ export const updateUser = async (req, res) => {
 };
 
 const recommendQuestions = async (userId) => {
-	const profile = await UserProfile.findOne({ userId });
+	const profile = await UserProfile.findOne({ userId: new mongoose.Types.ObjectId(userId) });
+	console.log(profile);
 
 	if (!profile) return [];
 
@@ -52,6 +54,11 @@ const recommendQuestions = async (userId) => {
 		.sort((a, b) => b[1] - a[1])
 		.slice(0, 2)
 		.map(([dif]) => dif);
+
+	const topCompanies = Array.from(profile.companyPreference.entries())
+		.sort((a, b) => b[1] - a[1])
+		.slice(0, 2)
+		.map(([company]) => company);
 
 	const questions = await Question.find({
 		category: { $in: topCategories },
@@ -67,22 +74,9 @@ const recommendQuestions = async (userId) => {
 
 export const getRecommendations = async (req, res) => {
 	const userId = req.user.userId;
-	const cacheKey = `user:recommendations:${userId}`;
-
 	try {
-		const cached = await redis.get(cacheKey);
-
-		if (cached) {
-			const questionIds = JSON.parse(cached);
-			const questions = await Question.find({ _id: { $in: questionIds } }).lean();
-			return res.json(questions);
-		}
-
 		const recommendations = await recommendQuestions(userId);
 		const questionIds = recommendations.map(q => q._id);
-
-		await redis.set(cacheKey, JSON.stringify(questionIds), 'EX', 86400);
-
 		res.json(recommendations);
 	} catch (err) {
 		console.error('Recommendation Error:', err);

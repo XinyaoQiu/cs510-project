@@ -1,11 +1,12 @@
 import Redis from 'ioredis';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const redis = new Redis({
-  host: 'redis-18774.c232.us-east-1-2.ec2.redns.redis-cloud.com',
-  port: 18774,
-  username: 'default',
-  password: 'tfvMCfutuMhzPJrf15yGba8wrUmVBUSS',
-  tls: {}
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+  username: process.env.REDIS_USERNAME,
+  password: process.env.REDIS_PASSWORD,
 });
 
 redis.on('error', (err) => {

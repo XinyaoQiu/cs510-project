@@ -3,25 +3,19 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import User from './models/UserModel.js';
-import Question from './models/QuestionModel.js';
-import Answer from './models/AnswerModel.js';
-import Comment from './models/CommentModel.js';
-import Vote from './models/VoteModel.js';
-import Bookmark from './models/BookmarkModel.js';
+import User from './models/userModel.js';
+import Question from './models/questionModel.js';
+import Answer from './models/answerModel.js';
+import Comment from './models/commentModel.js';
+import Vote from './models/voteModel.js';
+import Bookmark from './models/bookmarkModel.js';
+import PageView from './models/pageViewModel.js';
 
 // --- Configuration ---
 const MOCK_DATA_DIR = './data/'; // Directory containing mock JSON files
 const MOCK_QUESTIONS_FILE = 'mockQuestions.json';
 const MOCK_ANSWERS_FILE = 'mockAnswers.json';
 const MOCK_COMMENTS_FILE = 'mockComments.json';
-
-const TEST_USERS_EMAILS = [
-	"test1@test.com",
-	"test2@test.com",
-	"test3@test.com",
-	"test4@test.com"
-];
 
 const getRandomElement = (arr) => {
 	if (!arr || arr.length === 0) return null;
@@ -38,6 +32,24 @@ const loadJsonData = async (fileName) => {
 	}
 };
 
+const createTestUsers = async () => {
+	try {
+		const USER_COUNT_TO_CREATE = 10;
+		console.log(`Creating ${USER_COUNT_TO_CREATE} test users...`);
+		const usersToCreate = Array.from({ length: USER_COUNT_TO_CREATE }, (_, index) => ({
+			name: `Test User ${index + 1}`,
+			email: `testuser${index + 1}@example.com`,
+			location: `Test Location ${index + 1}`,
+			lastName: `Test LastName ${index + 1}`,
+			role: 'test',
+		}));
+
+		const createdUsers = await User.create(usersToCreate);
+	} catch (error) {
+		console.error('Error creating test users:', error.message);
+		return [];
+	}
+}
 
 const populateDatabase = async () => {
 	try {
@@ -45,12 +57,8 @@ const populateDatabase = async () => {
 		console.log('Connected to MongoDB...');
 
 		console.log('Finding/Creating test users...');
-		const userPromises = TEST_USERS_EMAILS.map(email =>
-			User.findOne({ email: email })
-		);
-		const users = await Promise.all(userPromises);
-		const userIds = users.map(user => user._id);
-		console.log(`Found ${users.length} test users.`);
+		const testUsers = await User.find({ role: 'test' });
+		const userIds = testUsers.map(user => user._id);
 
 		console.log('Clearing previous mock data (Questions, Answers, Comments, Votes)...');
 		await Question.deleteMany({ createdBy: { $in: userIds } });
@@ -135,115 +143,125 @@ const populateDatabase = async () => {
 			console.log('Skipping comments (no questions/answers created or no mock comments found).');
 		}
 
-		const VOTE_COUNT_TO_GENERATE = 200; // Define how many votes to create
-        console.log(`Generating ${VOTE_COUNT_TO_GENERATE} random votes...`);
+		// Process and Create Votes (Requires createdQuestions, createdAnswers, and createdComments)
+		const VOTE_COUNT_TO_GENERATE = 1000; // Define how many votes to create
+		console.log(`Generating ${VOTE_COUNT_TO_GENERATE} random votes...`);
 
-        const votesToCreate = [];
-        const uniqueVoteCheck = new Set(); // To prevent duplicate user/item votes
-        const availableItemTypes = []; // Determine which item types actually have created items
-        if (questionIds.length > 0) availableItemTypes.push('Question');
-        if (answerIds.length > 0) availableItemTypes.push('Answer');
-        if (commentIds.length > 0) availableItemTypes.push('Comment');
+		const votesToCreate = [];
+		const uniqueVoteCheck = new Set(); // To prevent duplicate user/item votes
 
-        if (availableItemTypes.length > 0 && userIds.length > 0) {
-            for (let i = 0; i < VOTE_COUNT_TO_GENERATE; i++) {
-                const itemType = getRandomElement(availableItemTypes); // Pick a valid type
-                let itemId = null;
+		for (let i = 0; i < VOTE_COUNT_TO_GENERATE; i++) {
+			const itemType = Math.random() < 0.8 ? 'Question' : 'Answer'; // Pick a valid type
+			let itemId = null;
 
-                // Get a random ID for the chosen item type
-                if (itemType === 'Question') itemId = getRandomElement(questionIds);
-                else if (itemType === 'Answer') itemId = getRandomElement(answerIds);
-                else itemId = getRandomElement(commentIds); // Must be Comment
+			// Get a random ID for the chosen item type
+			if (itemType === 'Question') itemId = getRandomElement(questionIds);
+			else if (itemType === 'Answer') itemId = getRandomElement(answerIds);
+			else itemId = getRandomElement(commentIds); // Must be Comment
 
-                const userId = getRandomElement(userIds);
-                const voteValue = Math.random() < 0.8 ? '1' : '-1'; // 80% likes
+			const userId = getRandomElement(userIds);
+			const value = Math.random() < 0.8 ? 1 : -1; // 80% likes
 
-                // Ensure user/item combo is unique for this run and item exists
-                const voteKey = `${userId}-${itemType}-${itemId}`;
-                if (!itemId || uniqueVoteCheck.has(voteKey)) {
-                    // Skip if no item ID or vote already exists for this combo
-                    // Optionally, you could retry generating a different combo here,
-                    // but for simplicity, we just skip this iteration.
-                    continue;
-                }
-                uniqueVoteCheck.add(voteKey);
+			// Ensure user/item combo is unique for this run and item exists
+			const voteKey = `${userId}-${itemType}-${itemId}`;
+			if (!itemId || uniqueVoteCheck.has(voteKey)) {
+				// Skip if no item ID or vote already exists for this combo
+				// Optionally, you could retry generating a different combo here,
+				// but for simplicity, we just skip this iteration.
+				continue;
+			}
+			uniqueVoteCheck.add(voteKey);
 
-                votesToCreate.push({
-                    user: userId,
-                    itemType: itemType,
-                    item: itemId,
-                    voteValue: voteValue,
-                });
-            } // End for loop
+			votesToCreate.push({
+				user: userId,
+				itemType: itemType,
+				item: itemId,
+				value: value,
+			});
+		} // End for loop
 
-            if (votesToCreate.length > 0) {
-                await Vote.create(votesToCreate);
-                console.log(`Created ${votesToCreate.length} votes.`);
-            } else {
-                 console.log('Could not generate any unique votes.');
-            }
-
-        } else {
-             console.log('Skipping votes (no users or no items created).');
-        }
-        // --- End of Vote Generation ---
+		if (votesToCreate.length > 0) {
+			await Vote.create(votesToCreate);
+			console.log(`Created ${votesToCreate.length} votes.`);
+		} else {
+			console.log('Could not generate any unique votes.');
+		}
 
 
-		// 9. Process and Create Saves (Bookmarks - Generated In-Script)
-        const SAVE_COUNT_TO_GENERATE = 150; // Define how many saves to create
-        console.log(`Generating ${SAVE_COUNT_TO_GENERATE} random saves (bookmarks)...`);
+		// --- End of Vote Generation ---
 
-        const savesToCreate = [];
-        const uniqueSaveCheck = new Set(); // To prevent duplicate user/item saves
-        const availableSaveItemTypes = []; // Determine which item types can be saved
-        if (questionIds.length > 0) availableSaveItemTypes.push('Question');
-        if (answerIds.length > 0) availableSaveItemTypes.push('Answer');
-        // Add 'Comment' here if comments can be saved:
-        // if (commentIds.length > 0) availableSaveItemTypes.push('Comment');
 
-        if (availableSaveItemTypes.length > 0 && userIds.length > 0) {
-            for (let i = 0; i < SAVE_COUNT_TO_GENERATE; i++) {
-                const itemType = getRandomElement(availableSaveItemTypes); // Pick a valid type
-                let itemId = null;
+		// Process and Create Bookmarks (Requires createdQuestions, createdAnswers, and createdComments)
+		const SAVE_COUNT_TO_GENERATE = 1000; // Define how many saves to create
+		console.log(`Generating ${SAVE_COUNT_TO_GENERATE} random saves (bookmarks)...`);
 
-                // Get a random ID for the chosen item type
-                if (itemType === 'Question') itemId = getRandomElement(questionIds);
-                else if (itemType === 'Answer') itemId = getRandomElement(answerIds);
-                // else if (itemType === 'Comment') itemId = getRandomElement(commentIds); // Uncomment if comments can be saved
+		const savesToCreate = [];
+		const uniqueSaveCheck = new Set(); // To prevent duplicate user/item saves
 
-                const userId = getRandomElement(userIds);
+		for (let i = 0; i < SAVE_COUNT_TO_GENERATE; i++) {
+			const itemType = Math.random() < 0.8 ? 'Question' : 'Answer'; // Pick a valid type
+			let itemId = null;
 
-                // Ensure user/item combo is unique for this run and item exists
-                const saveKey = `${userId}-${itemType}-${itemId}`;
-                if (!itemId || uniqueSaveCheck.has(saveKey)) {
-                    // Skip if no item ID or save already exists for this combo
-                    continue;
-                }
-                uniqueSaveCheck.add(saveKey);
+			// Get a random ID for the chosen item type
+			if (itemType === 'Question') itemId = getRandomElement(questionIds);
+			else if (itemType === 'Answer') itemId = getRandomElement(answerIds);
+			// else if (itemType === 'Comment') itemId = getRandomElement(commentIds); // Uncomment if comments can be saved
 
-                savesToCreate.push({
-                    user: userId,
-                    itemType: itemType,
-                    item: itemId,
-                });
+			const userId = getRandomElement(userIds);
 
-                // Optional: Break early if needed
-                if (savesToCreate.length >= SAVE_COUNT_TO_GENERATE) {
-                    // break;
-                }
-            } // End for loop
+			// Ensure user/item combo is unique for this run and item exists
+			const saveKey = `${userId}-${itemType}-${itemId}`;
+			if (!itemId || uniqueSaveCheck.has(saveKey)) {
+				// Skip if no item ID or save already exists for this combo
+				continue;
+			}
+			uniqueSaveCheck.add(saveKey);
 
-            if (savesToCreate.length > 0) {
-                await Bookmark.create(savesToCreate);
-                console.log(`Created ${savesToCreate.length} saves (bookmarks).`);
-            } else {
-                 console.log('Could not generate any unique saves.');
-            }
+			savesToCreate.push({
+				user: userId,
+				itemType: itemType,
+				item: itemId,
+				value: 1
+			});
 
-        } else {
-             console.log('Skipping saves (no users or no saveable items created).');
-        }
-        // --- End of Save Generation ---
+			// Optional: Break early if needed
+			if (savesToCreate.length >= SAVE_COUNT_TO_GENERATE) {
+				// break;
+			}
+		} // End for loop
+
+		if (savesToCreate.length > 0) {
+			await Bookmark.create(savesToCreate);
+			console.log(`Created ${savesToCreate.length} bookmarks.`);
+		} else {
+			console.log('Could not generate any unique bookmarks.');
+		}
+		// --- End of Save Generation ---
+		
+		// Process and Create Pageviews
+		const PAGEVIEW_COUNT_TO_GENERATE = 1000; // Define how many pageviews to create
+		console.log(`Generating ${PAGEVIEW_COUNT_TO_GENERATE} random pageviews...`);
+
+		const pageviewsToCreate = [];
+
+		for (let i = 0; i < PAGEVIEW_COUNT_TO_GENERATE; i++) {
+			const userId = getRandomElement(userIds);
+			const questionId = getRandomElement(questionIds);
+
+			pageviewsToCreate.push({
+				userId: userId,
+				questionId: questionId
+			});
+		} // End for loop
+
+		if (pageviewsToCreate.length > 0) {
+			await PageView.create(pageviewsToCreate);
+			console.log(`Created ${pageviewsToCreate.length} pageviews.`);
+		} else {
+			console.log('Could not generate any unique pageviews.');
+		}
+		// --- End of Pageview Generation ---
+
 
 		// 9. Success
 		console.log('Success! Database populated with mock data.');
@@ -256,5 +274,6 @@ const populateDatabase = async () => {
 };
 
 // Run the population script
+// createTestUsers();
 populateDatabase();
 

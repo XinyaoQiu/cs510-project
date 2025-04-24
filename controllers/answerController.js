@@ -1,4 +1,4 @@
-import Answer from '../models/AnswerModel.js';
+import Answer from '../models/answerModel.js';
 import { StatusCodes } from 'http-status-codes';
 
 export const getAllAnswers = async (req, res) => {
@@ -12,11 +12,11 @@ export const getAllAnswers = async (req, res) => {
         ];
     }
 
-    if (questionId) {
+    if (questionId && questionId !== 'all') {
         queryObject.question = questionId;
     }
 
-    if (userId) {
+    if (userId && userId !== 'all') {
         queryObject.createdBy = userId;
     }
 

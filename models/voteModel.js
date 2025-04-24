@@ -12,7 +12,7 @@ const VoteSchema = new mongoose.Schema(
             required: true,
             refPath: 'itemType',
         },
-        voteValue: {
+        value: {
             type: Number,
             required: true,
             enum: [1, 0, -1], // 1 for like, 0 for no vote, -1 for dislike
