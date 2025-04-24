@@ -1,5 +1,7 @@
 import Question from "../models/QuestionModel.js";
 import { StatusCodes } from "http-status-codes";
+import redis from "../utils/redis.js";
+import updateUserProfileWithQuestion from "../utils/profileUpdater.js";
 
 export const getAllQuestions = async (req, res) => {
     const { search, category, difficulty, sort, userId } = req.query;
@@ -57,6 +59,7 @@ export const getAllQuestions = async (req, res) => {
 
 export const getQuestion = async (req, res) => {
     const { id: questionId } = req.params;
+    const userId = req.user.userId;
 
     const pipeline = [
         {
@@ -107,6 +110,16 @@ export const getQuestion = async (req, res) => {
     const results = await Question.aggregate(pipeline);
 
     const question = results[0];
+
+    const redisKey = `pv:${userId}:${id}`;
+    const alreadyViewed = await redis.get(redisKey);
+
+    if (!alreadyViewed) {
+        await PageView.create({ userId, questionId: id });
+        await updateUserProfileWithQuestion(userId, question);
+        await redis.set(redisKey, 1, 'EX', 60);
+    }
+
     res.status(StatusCodes.OK).json({ question });
 };
 

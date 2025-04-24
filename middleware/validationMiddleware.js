@@ -106,6 +106,15 @@ export const validateCommentIdParam = withValidationErrors([
 	}),
 ])
 
+export const validateRecommendationIdParam = withValidationErrors([
+	param('id').custom(async (value, { req }) => {
+		const isValidMongoId = mongoose.Types.ObjectId.isValid(value);
+		if (!isValidMongoId) throw new BadRequestError('invalid MongoDB id');
+		const user = await User.findById(value);
+		if (!user) throw new NotFoundError(`no question with id ${value}`);
+	}),
+])
+
 export const validateRegisterInput = withValidationErrors([
 	body('name').notEmpty().withMessage('name is required'),
 	body('email')

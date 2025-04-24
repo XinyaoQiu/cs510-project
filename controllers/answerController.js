@@ -12,11 +12,11 @@ export const getAllAnswers = async (req, res) => {
         ];
     }
 
-    if (questionId && questionId !== 'all') {
+    if (questionId) {
         queryObject.question = questionId;
     }
 
-    if (userId && userId !== 'all') {
+    if (userId) {
         queryObject.createdBy = userId;
     }
 
