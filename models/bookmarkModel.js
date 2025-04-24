@@ -7,12 +7,12 @@ const BookmarkSchema = new mongoose.Schema(
             required: true,
             enum: ['Question', 'Answer'],
         },
-        item: {
+        itemId: {
             type: mongoose.Types.ObjectId,
             required: true,
             refPath: 'itemType',
         },
-        user: {
+        userId: {
             type: mongoose.Types.ObjectId,
             ref: 'User'
         },

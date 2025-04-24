@@ -13,7 +13,7 @@ export const getAllQuestions = async (req, res) => {
     if (search) {
         queryObject.$or = [
             { title: { $regex: search, $options: 'i' } },
-            { question: { $regex: search, $options: 'i' } },
+            { text: { $regex: search, $options: 'i' } },
             { company: { $regex: search, $options: 'i' } },
         ];
     }
@@ -70,7 +70,7 @@ export const getQuestion = async (req, res) => {
             }
         },
         {
-            $lookup: { from: 'answers', localField: '_id', foreignField: 'question', as: 'answerDocs' }
+            $lookup: { from: 'answers', localField: '_id', foreignField: 'questionId', as: 'answerDocs' }
         },
         {
             $lookup: {
@@ -88,7 +88,7 @@ export const getQuestion = async (req, res) => {
                 from: 'votes',
                 let: { questionId: '$_id' },
                 pipeline: [
-                    { $match: { $expr: { $and: [{ $eq: ['$item', '$$questionId'] }, { $eq: ['$itemType', 'Question'] }] } } },
+                    { $match: { $expr: { $and: [{ $eq: ['$itemId', '$$questionId'] }, { $eq: ['$itemType', 'Question'] }] } } },
                     { $project: { _id: 1, value: 1 } }
                 ],
                 as: 'voteDocs'
@@ -99,7 +99,7 @@ export const getQuestion = async (req, res) => {
                 from: 'bookmarks',
                 let: { questionId: '$_id' },
                 pipeline: [
-                    { $match: { $expr: { $and: [{ $eq: ['$item', '$$questionId'] }, { $eq: ['$itemType', 'Question'] }] } } },
+                    { $match: { $expr: { $and: [{ $eq: ['$itemId', '$$questionId'] }, { $eq: ['$itemType', 'Question'] }] } } },
                     { $project: { _id: 1, value: 1 } }
                 ],
                 as: 'bookmarkDocs'

@@ -7,7 +7,7 @@ const VoteSchema = new mongoose.Schema(
             required: true,
             enum: ['Question', 'Answer', 'Comment'],
         },
-        item: {
+        itemId: {
             type: mongoose.Types.ObjectId,
             required: true,
             refPath: 'itemType',
@@ -17,7 +17,7 @@ const VoteSchema = new mongoose.Schema(
             required: true,
             enum: [1, 0, -1], // 1 for like, 0 for no vote, -1 for dislike
         },
-        user: {
+        userId: {
             type: mongoose.Types.ObjectId,
             ref: 'User'
         },

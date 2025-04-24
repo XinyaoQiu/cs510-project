@@ -37,7 +37,7 @@ const withValidationErrors = (validateValues) => {
 
 export const validateQuestionInput = withValidationErrors([
 	body('title').notEmpty().withMessage('title is required'),
-	body('question').notEmpty().withMessage('question is required'),
+	body('text').notEmpty().withMessage('text is required'),
 	body('category')
 		.isIn(Object.values(QUESTION_CATEGORIES))
 		.withMessage('invalid category value'),
@@ -47,10 +47,10 @@ export const validateQuestionInput = withValidationErrors([
 ])
 
 export const validateAnswerInput = withValidationErrors([
-	body('answer').notEmpty().withMessage('answer is required'),
-	body('question')
+	body('text').notEmpty().withMessage('text is required'),
+	body('questionId')
 		.notEmpty()
-		.withMessage('question is required')
+		.withMessage('questionId is required')
 		.custom(async (value, { req }) => {
 			const isValidMongoId = mongoose.Types.ObjectId.isValid(value);
 			if (!isValidMongoId) throw new BadRequestError('invalid MongoDB id');
@@ -83,7 +83,7 @@ export const validateCommentInput = withValidationErrors([
 export const validateVoteInput = withValidationErrors([
 	body('value').isIn([-1, 0, 1]).withMessage('invalid vote value'),
 	body('itemType').isIn(['Question', 'Answer', 'Comment']).withMessage('invalid item type'),
-	body('item')
+	body('itemId')
 		.notEmpty()
 		.withMessage('item id is required')
 		.custom(async (value, { req }) => {
@@ -105,7 +105,7 @@ export const validateVoteInput = withValidationErrors([
 export const validateBookmarkInput = withValidationErrors([
 	body('value').isIn([0, 1]).withMessage('invalid bookmark value'),
 	body('itemType').isIn(['Question', 'Answer', 'Comment']).withMessage('invalid item type'),
-	body('item')
+	body('itemId')
 		.notEmpty()
 		.withMessage('item id is required')
 		.custom(async (value, { req }) => {

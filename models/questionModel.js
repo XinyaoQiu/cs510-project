@@ -4,7 +4,7 @@ import { QUESTION_CATEGORIES, QUESTION_DIFFICULTIES } from '../utils/constants.j
 const QuestionSchema = new mongoose.Schema(
     {
         title: String,
-        question: String,
+        text: String,
         company: String,
         category: {
             type: String,

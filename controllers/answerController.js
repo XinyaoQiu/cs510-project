@@ -8,12 +8,12 @@ export const getAllAnswers = async (req, res) => {
 
     if (search) {
         queryObject.$or = [
-            { answer: { $regex: search, $options: 'i' } },
+            { text: { $regex: search, $options: 'i' } },
         ];
     }
 
     if (questionId && questionId !== 'all') {
-        queryObject.question = questionId;
+        queryObject.questionId = questionId;
     }
 
     if (userId && userId !== 'all') {

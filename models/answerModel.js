@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 
 const AnswerSchema = new mongoose.Schema(
     {
-        answer: String,
-        question: {
+        text: String,
+        questionId: {
             type: mongoose.Types.ObjectId,
             ref: 'Question',
         },
