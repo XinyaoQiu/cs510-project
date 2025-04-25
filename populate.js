@@ -94,7 +94,7 @@ const populateDatabase = async () => {
 			const answersToCreate = mockAnswers.map(a => ({
 				...a, // Spread mock answer data (answer text)
 				createdBy: getRandomElement(userIds),
-				question: getRandomElement(questionIds), // Link to a random created question
+				questionId: getRandomElement(questionIds), // Link to a random created question
 			}));
 			createdAnswers = await Answer.create(answersToCreate);
 			answerIds = createdAnswers.map(a => a._id);
@@ -175,7 +175,7 @@ const populateDatabase = async () => {
 			votesToCreate.push({
 				user: userId,
 				itemType: itemType,
-				item: itemId,
+				itemId: itemId,
 				value: value,
 			});
 		} // End for loop
@@ -218,9 +218,9 @@ const populateDatabase = async () => {
 			uniqueSaveCheck.add(saveKey);
 
 			savesToCreate.push({
-				user: userId,
+				userId: userId,
 				itemType: itemType,
-				item: itemId,
+				itemId: itemId,
 				value: 1
 			});
 
