@@ -5,9 +5,11 @@ import {
 	UnauthorizedError,
 } from '../errors/customErrors.js';
 import mongoose from 'mongoose';
-import User from '../models/UserModel.js';
-import Question from '../models/QuestionModel.js';
-import Answer from '../models/AnswerModel.js';
+import User from '../models/userModel.js';
+import Question from '../models/questionModel.js';
+import Answer from '../models/answerModel.js';
+import Comment from '../models/commentModel.js';
+import Vote from '../models/voteModel.js';
 import { QUESTION_CATEGORIES, QUESTION_DIFFICULTIES } from '../utils/constants.js';
 
 const withValidationErrors = (validateValues) => {
@@ -35,7 +37,7 @@ const withValidationErrors = (validateValues) => {
 
 export const validateQuestionInput = withValidationErrors([
 	body('title').notEmpty().withMessage('title is required'),
-	body('question').notEmpty().withMessage('question is required'),
+	body('text').notEmpty().withMessage('text is required'),
 	body('category')
 		.isIn(Object.values(QUESTION_CATEGORIES))
 		.withMessage('invalid category value'),
@@ -45,15 +47,80 @@ export const validateQuestionInput = withValidationErrors([
 ])
 
 export const validateAnswerInput = withValidationErrors([
-	body('answer').notEmpty().withMessage('answer is required'),
-	body('question')
+	body('text').notEmpty().withMessage('text is required'),
+	body('questionId')
 		.notEmpty()
-		.withMessage('question is required')
+		.withMessage('questionId is required')
 		.custom(async (value, { req }) => {
 			const isValidMongoId = mongoose.Types.ObjectId.isValid(value);
 			if (!isValidMongoId) throw new BadRequestError('invalid MongoDB id');
 			const question = await Question.findById(value);
 			if (!question) throw new NotFoundError(`no question with id ${value}`);
+		})
+])
+
+export const validateCommentInput = withValidationErrors([
+	body('text').notEmpty().withMessage('text is required'),
+	body('parentType')
+		.isIn(['Question', 'Answer'])
+		.withMessage('invalid parent type'),
+	body('parentId')
+		.notEmpty()
+		.withMessage('parent id is required')
+		.custom(async (value, { req }) => {
+			const isValidMongoId = mongoose.Types.ObjectId.isValid(value);
+			if (!isValidMongoId) throw new BadRequestError('invalid MongoDB id');
+			if (req.body.parentType === 'Question') {
+				const question = await Question.findById(value);
+				if (!question) throw new NotFoundError(`no question with id ${value}`);
+			} else if (req.body.parentType === 'Answer') {
+				const answer = await Answer.findById(value);
+				if (!answer) throw new NotFoundError(`no answer with id ${value}`);
+			}
+		})
+])
+
+export const validateVoteInput = withValidationErrors([
+	body('value').isIn([-1, 0, 1]).withMessage('invalid vote value'),
+	body('itemType').isIn(['Question', 'Answer', 'Comment']).withMessage('invalid item type'),
+	body('itemId')
+		.notEmpty()
+		.withMessage('item id is required')
+		.custom(async (value, { req }) => {
+			const isValidMongoId = mongoose.Types.ObjectId.isValid(value);
+			if (!isValidMongoId) throw new BadRequestError('invalid MongoDB id');
+			if (req.body.parentType === 'Question') {
+				const question = await Question.findById(value);
+				if (!question) throw new NotFoundError(`no question with id ${value}`);
+			} else if (req.body.parentType === 'Answer') {
+				const answer = await Answer.findById(value);
+				if (!answer) throw new NotFoundError(`no answer with id ${value}`);
+			} else if (req.body.parentType === 'Comment') {
+				const comment = await Comment.findById(value);
+				if (!comment) throw new NotFoundError(`no comment with id ${value}`);
+			}
+		})
+])
+
+export const validateBookmarkInput = withValidationErrors([
+	body('value').isIn([0, 1]).withMessage('invalid bookmark value'),
+	body('itemType').isIn(['Question', 'Answer', 'Comment']).withMessage('invalid item type'),
+	body('itemId')
+		.notEmpty()
+		.withMessage('item id is required')
+		.custom(async (value, { req }) => {
+			const isValidMongoId = mongoose.Types.ObjectId.isValid(value);
+			if (!isValidMongoId) throw new BadRequestError('invalid MongoDB id');
+			if (req.body.parentType === 'Question') {
+				const question = await Question.findById(value);
+				if (!question) throw new NotFoundError(`no question with id ${value}`);
+			} else if (req.body.parentType === 'Answer') {
+				const answer = await Answer.findById(value);
+				if (!answer) throw new NotFoundError(`no answer with id ${value}`);
+			} else if (req.body.parentType === 'Comment') {
+				const comment = await Comment.findById(value);
+				if (!comment) throw new NotFoundError(`no comment with id ${value}`);
+			}
 		})
 ])
 
@@ -74,6 +141,24 @@ export const validateAnswerIdParam = withValidationErrors([
 		if (!answer) throw new NotFoundError(`no answer with id ${value}`);
 	}),
 ]);
+
+export const validateCommentIdParam = withValidationErrors([
+	param('id').custom(async (value, { req }) => {
+		const isValidMongoId = mongoose.Types.ObjectId.isValid(value);
+		if (!isValidMongoId) throw new BadRequestError('invalid MongoDB id');
+		const comment = await Comment.findById(value);
+		if (!comment) throw new NotFoundError(`no comment with id ${value}`);
+	}),
+])
+
+export const validateRecommendationIdParam = withValidationErrors([
+	param('id').custom(async (value, { req }) => {
+		const isValidMongoId = mongoose.Types.ObjectId.isValid(value);
+		if (!isValidMongoId) throw new BadRequestError('invalid MongoDB id');
+		const user = await User.findById(value);
+		if (!user) throw new NotFoundError(`no question with id ${value}`);
+	}),
+])
 
 export const validateRegisterInput = withValidationErrors([
 	body('name').notEmpty().withMessage('name is required'),

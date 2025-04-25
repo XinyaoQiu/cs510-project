@@ -15,6 +15,8 @@ import questionRouter from './routes/questionRouter.js';
 import answerRouter from './routes/answerRouter.js';
 import authRouter from './routes/authRouter.js';
 import userRouter from './routes/userRouter.js';
+import voteRouter from './routes/voteRouter.js';
+import bookmarkRouter from './routes/bookmarkRouter.js';
 // public
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -51,7 +53,10 @@ app.get('/api/v1/test', (req, res) => {
 app.use('/api/v1/questions', authenticateUser, questionRouter);
 app.use('/api/v1/answers', authenticateUser, answerRouter);
 app.use('/api/v1/users', authenticateUser, userRouter);
+app.use('/api/v1/votes', authenticateUser, voteRouter);
+app.use('/api/v1/bookmark', authenticateUser, bookmarkRouter);
 app.use('/api/v1/auth', authRouter);
+
 
 // app.get('*', (req, res) => {
 // 	res.sendFile(path.resolve(__dirname, './client/dist', 'index.html'));

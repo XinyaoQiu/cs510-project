@@ -4,7 +4,7 @@ import { QUESTION_CATEGORIES, QUESTION_DIFFICULTIES } from '../utils/constants.j
 const QuestionSchema = new mongoose.Schema(
     {
         title: String,
-        question: String,
+        text: String,
         company: String,
         category: {
             type: String,
@@ -23,5 +23,9 @@ const QuestionSchema = new mongoose.Schema(
     },
     { timestamps: true }
 )
+
+QuestionSchema.index({ category: 1, difficulty: 1 });
+QuestionSchema.index({ category: 1, difficulty: 1, company: 1 });
+QuestionSchema.index({ createdAt: -1 });
 
 export default mongoose.model('Question', QuestionSchema);
