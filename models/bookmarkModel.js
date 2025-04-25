@@ -25,6 +25,6 @@ const BookmarkSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-BookmarkSchema.index({ itemType: 1, item: 1, user: 1 }, { unique: true });
+BookmarkSchema.index({ itemType: 1, itemId: 1, userId: 1 }, { unique: true });
 
 export default mongoose.model("Bookmark", BookmarkSchema);

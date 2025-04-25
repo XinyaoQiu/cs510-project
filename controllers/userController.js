@@ -76,7 +76,6 @@ export const getRecommendations = async (req, res) => {
 	const userId = req.user.userId;
 	try {
 		const recommendations = await recommendQuestions(userId);
-		const questionIds = recommendations.map(q => q._id);
 		res.json(recommendations);
 	} catch (err) {
 		console.error('Recommendation Error:', err);

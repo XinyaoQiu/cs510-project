@@ -25,9 +25,9 @@ const VoteSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-VoteSchema.index({ itemType: 1, item: 1, user: 1 }, { unique: true });
+VoteSchema.index({ itemType: 1, itemId: 1, userId: 1 }, { unique: true });
 
-VoteSchema.index({ itemType: 1, item: 1, voteType: 1 });
+VoteSchema.index({ itemType: 1, itemId: 1, value: 1 });
 
 
 export default mongoose.model('Vote', VoteSchema);

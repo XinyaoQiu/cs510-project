@@ -173,7 +173,7 @@ const populateDatabase = async () => {
 			uniqueVoteCheck.add(voteKey);
 
 			votesToCreate.push({
-				user: userId,
+				userId: userId,
 				itemType: itemType,
 				itemId: itemId,
 				value: value,
@@ -274,6 +274,6 @@ const populateDatabase = async () => {
 };
 
 // Run the population script
-// createTestUsers();
+createTestUsers();
 populateDatabase();
 
