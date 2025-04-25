@@ -114,7 +114,7 @@ export const getQuestion = async (req, res) => {
         },
         {
             $project: {
-                title: 1, question: 1, company: 1, category: 1, difficulty: 1, createdBy: 1, createdAt: 1, updatedAt: 1,
+                title: 1, text: 1, company: 1, category: 1, difficulty: 1, createdBy: 1, createdAt: 1, updatedAt: 1,
                 likeCount: 1, dislikeCount: 1, bookmarked: 1, answerDocs: 1, commentDocs: 1
             }
         },

@@ -63,6 +63,7 @@ const recommendQuestions = async (userId) => {
 	const questions = await Question.find({
 		category: { $in: topCategories },
 		difficulty: { $in: topDifficulties },
+		company: { $in: topCompanies },
 		_id: { $nin: profile.recentInteractedQuestions }
 	})
 		.sort({ createdAt: -1 })

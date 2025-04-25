@@ -25,6 +25,7 @@ const QuestionSchema = new mongoose.Schema(
 )
 
 QuestionSchema.index({ category: 1, difficulty: 1 });
+QuestionSchema.index({ category: 1, difficulty: 1, company: 1 });
 QuestionSchema.index({ createdAt: -1 });
 
 export default mongoose.model('Question', QuestionSchema);
