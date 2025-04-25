@@ -5,8 +5,6 @@ import Answer from '../models/answerModel.js';
 import cloudinary from 'cloudinary';
 import { formatImage } from '../middleware/multerMiddleware.js';
 import UserProfile from '../models/userProfileModel.js';
-import redis from '../utils/redis.js';
-import mongoose from 'mongoose';
 
 export const getCurrentUser = async (req, res) => {
 	const user = await User.findOne({ _id: req.user.userId });
@@ -39,8 +37,8 @@ export const updateUser = async (req, res) => {
 	res.status(StatusCodes.OK).json({ msg: 'update user' });
 };
 
-const recommendQuestions = async (userId) => {
-	const profile = await UserProfile.findOne({ userId: new mongoose.Types.ObjectId(userId) });
+const recommendQuestions = async (userId, limit) => {
+	const profile = await UserProfile.findOne({ userId: userId });
 	console.log(profile);
 
 	if (!profile) return [];
@@ -60,23 +58,28 @@ const recommendQuestions = async (userId) => {
 		.slice(0, 2)
 		.map(([company]) => company);
 
-	const questions = await Question.find({
+	let questions = await Question.find({
 		category: { $in: topCategories },
 		difficulty: { $in: topDifficulties },
 		company: { $in: topCompanies },
 		_id: { $nin: profile.recentInteractedQuestions }
 	})
 		.sort({ createdAt: -1 })
-		.limit(10)
+		.limit(limit)
 		.lean();
+
+	if (questions.length < limit) {
+		questions.push(...(await Question.find().sort({ createdAt: -1 }).limit(limit - questions.length)));
+	}
 
 	return questions;
 };
 
 export const getRecommendations = async (req, res) => {
 	const userId = req.user.userId;
+	const { limit } = req.query;
 	try {
-		const recommendations = await recommendQuestions(userId);
+		const recommendations = await recommendQuestions(userId, limit);
 		res.json(recommendations);
 	} catch (err) {
 		console.error('Recommendation Error:', err);
