@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
-import Link from 'next/link'
+import Link from 'next/link';
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Button } from "@/components/ui/button";
-import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle, } from "@/components/ui/navigation-menu";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import { LoginButton } from "@/components/login-button";
 import { SignUpButton } from "@/components/sign-up-button";
+import { AuthProvider } from "@/context/AuthContext";
+import { ClientAuthUI } from "@/components/ClientAuthUI";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,40 +34,35 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={inter.className}
-      >
-        <SidebarProvider>
-          <SidebarInset>
-            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 sticky top-0 bg-background">
-              <div className="grow">
-                <NavigationMenu>
-                  <NavigationMenuList>
-                    <NavigationMenuItem>
-                      <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
-                        <Link href="/explore">
-                          Explore
-                        </Link>
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                      <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
-                        <Link href="/problems">
-                          Problems
-                        </Link>
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  </NavigationMenuList>
-                </NavigationMenu>
-              </div>
-              <LoginButton />
-              <SignUpButton />
-              <SidebarTrigger className="ml-2 rotate-180" />
-            </header>
-            {children}
-          </SidebarInset>
-          <AppSidebar side="right" />
-        </SidebarProvider>
+      <body className={inter.className}>
+        <AuthProvider>
+          <SidebarProvider>
+            <SidebarInset>
+              <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 sticky top-0 bg-background">
+                <div className="grow">
+                  <NavigationMenu>
+                    <NavigationMenuList>
+                      <NavigationMenuItem>
+                        <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+                          <Link href="/explore">Explore</Link>
+                        </NavigationMenuLink>
+                      </NavigationMenuItem>
+                      <NavigationMenuItem>
+                        <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+                          <Link href="/problems">Problems</Link>
+                        </NavigationMenuLink>
+                      </NavigationMenuItem>
+                    </NavigationMenuList>
+                  </NavigationMenu>
+                </div>
+                <ClientAuthUI />
+                <SidebarTrigger className="ml-2 rotate-180" />
+              </header>
+              {children}
+            </SidebarInset>
+            <AppSidebar side="right" />
+          </SidebarProvider>
+        </AuthProvider>
       </body>
     </html>
   );
