@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 // import cloudinary from 'cloudinary';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
+import cors from 'cors';
 
 // routers
 import questionRouter from './routes/questionRouter.js';
@@ -41,6 +42,12 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(helmet());
 app.use(mongoSanitize());
+
+// 前端跑CORS 用localhost:3000
+app.use(cors({
+	origin: 'http://localhost:3000',
+	credentials: true
+  }));
 
 app.get('/', (req, res) => {
 	res.send('Hello World');
