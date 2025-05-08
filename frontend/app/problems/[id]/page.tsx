@@ -1,21 +1,18 @@
 'use client';
 
 import useSWR from 'swr'
+import { useParams } from 'next/navigation'
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { MessageSquare, ThumbsDown, ThumbsUp } from "lucide-react"
+import { ThumbsDown, ThumbsUp } from "lucide-react"
 
 const fetcher = (url: string) => fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`, {
     credentials: "include"
 }).then(res => (res.json()))
 
-export default function ProblemPage({
-    params,
-}: {
-    params: { id: string }
-}) {
-    const { id: problemId } = params;
+export default function ProblemPage() {
+    const { id: problemId } = useParams<{ id: string }>();
     const { data, error } = useSWR(`/api/v1/questions/${problemId}`, fetcher)
     const question = data?.question
 

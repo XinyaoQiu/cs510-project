@@ -9,6 +9,15 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
+import { useEffect, useState } from 'react';
+
 
 const fetcher = (url: string) => fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`, {
     credentials: "include"
@@ -16,12 +25,17 @@ const fetcher = (url: string) => fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}$
 
 export function ProblemList({ search, difficulty }: { search?: string, difficulty?: string }) {
     const router = useRouter();
-    const { data, error } = useSWR(`/api/v1/questions?search=${search || ""}&difficulty=${difficulty || ""}`, fetcher)
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const { data, error } = useSWR(`/api/v1/questions?search=${search || ""}&difficulty=${difficulty || ""}&page=${currentPage}`, fetcher)
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, difficulty]);
 
     if (error) return <div>Failed to load</div>
     if (!data) return <div>Loading...</div>
 
-    return (
+    return (<>
         <Table>
             <TableHeader>
                 <TableRow>
@@ -42,5 +56,12 @@ export function ProblemList({ search, difficulty }: { search?: string, difficult
                 ))}
             </TableBody>
         </Table>
+        <Pagination className="mt-4">
+            <PaginationContent>
+                {currentPage > 1 && <PaginationItem><PaginationPrevious onClick={() => setCurrentPage((page) => page - 1)} /></PaginationItem>}
+                {currentPage < data.numOfPages && <PaginationItem><PaginationNext onClick={() => setCurrentPage((page) => page + 1)} /></PaginationItem>}
+            </PaginationContent>
+        </Pagination>
+    </>
     )
 }
