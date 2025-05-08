@@ -11,15 +11,18 @@ import {
 } from "@/components/ui/sidebar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Send } from "lucide-react"
+import { Send, Trash2 } from "lucide-react"
 
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-    const { messages, input, handleInputChange, handleSubmit } = useChat();
+    const { messages, input, handleInputChange, handleSubmit, setMessages } = useChat();
     return (
         <Sidebar {...props}>
             <SidebarHeader>
                 LLM Assistant
+                <Button variant="ghost" className="absolute right-2 top-2" onClick={() => setMessages([])}>
+                    <Trash2 className="h-4 w-4" />
+                </Button>
             </SidebarHeader>
             <SidebarContent className="p-2">
                 {messages.map((message, index) => (
