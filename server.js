@@ -2,28 +2,21 @@ import 'express-async-errors';
 import * as dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
-const app = express();
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
-// import cloudinary from 'cloudinary';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import cors from 'cors';
+import next from 'next';
 
-// routers
 import questionRouter from './routes/questionRouter.js';
 import answerRouter from './routes/answerRouter.js';
 import authRouter from './routes/authRouter.js';
 import userRouter from './routes/userRouter.js';
 import voteRouter from './routes/voteRouter.js';
 import bookmarkRouter from './routes/bookmarkRouter.js';
-// public
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import path from 'path';
 
-// middleware
 import errorHandlerMiddleware from './middleware/errorHandlerMiddleware.js';
 import { authenticateUser } from './middleware/authMiddleware.js';
 
@@ -33,30 +26,32 @@ import { authenticateUser } from './middleware/authMiddleware.js';
 //   api_secret: process.env.CLOUD_API_SECRET,
 // });
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const dev = process.env.NODE_ENV !== 'production';
+const nextApp = next({ dev, dir: './frontend' });  // Point to the Next.js frontend directory
+const handle = nextApp.getRequestHandler();
+
+const app = express();
+
 if (process.env.NODE_ENV === 'development') {
 	app.use(morgan('dev'));
 }
-// app.use(express.static(path.resolve(__dirname, './client/dist')));
+
 app.use(cookieParser());
 app.use(express.json());
-app.use(helmet());
+app.use(helmet({
+	contentSecurityPolicy: false
+  }));
 app.use(mongoSanitize());
 
-// 前端跑CORS 用localhost:3000
 app.use(cors({
 	origin: 'http://localhost:3000',
 	credentials: true
-  }));
+}));
 
-app.get('/', (req, res) => {
-	res.send('Hello World');
-});
-
+// Backend routes
 app.get('/api/v1/test', (req, res) => {
 	res.json({ msg: 'test route' });
 });
-
 app.use('/api/v1/questions', authenticateUser, questionRouter);
 app.use('/api/v1/answers', authenticateUser, answerRouter);
 app.use('/api/v1/users', authenticateUser, userRouter);
@@ -64,14 +59,16 @@ app.use('/api/v1/votes', authenticateUser, voteRouter);
 app.use('/api/v1/bookmark', authenticateUser, bookmarkRouter);
 app.use('/api/v1/auth', authRouter);
 
+// Handle frontend requests through Next
+await nextApp.prepare();  // Wait for Next.js to boot
 
-// app.get('*', (req, res) => {
-// 	res.sendFile(path.resolve(__dirname, './client/dist', 'index.html'));
-// });
+app.all('*', (req, res) => {
+	return handle(req, res);  // Let Next handle everything else
+});
 
-// app.use('*', (req, res) => {
-// 	res.status(404).json({ msg: 'not found' });
-// });
+app.use('*', (req, res) => {
+	res.status(404).json({ msg: 'not found' });
+});
 
 app.use(errorHandlerMiddleware);
 
@@ -80,7 +77,7 @@ const port = process.env.PORT || 5000;
 try {
 	await mongoose.connect(process.env.MONGO_URL);
 	app.listen(port, () => {
-		console.log(`server running on PORT ${port}...`);
+		console.log(`Server is running on http://localhost:${port}`);
 	});
 } catch (error) {
 	console.log(error);
