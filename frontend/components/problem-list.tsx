@@ -14,9 +14,9 @@ const fetcher = (url: string) => fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}$
     credentials: "include"
 }).then(res => (res.json()))
 
-export function ProblemList() {
+export function ProblemList({ search, difficulty }: { search?: string, difficulty?: string }) {
     const router = useRouter();
-    const { data, error } = useSWR('/api/v1/questions', fetcher)
+    const { data, error } = useSWR(`/api/v1/questions?search=${search || ""}&difficulty=${difficulty || ""}`, fetcher)
 
     if (error) return <div>Failed to load</div>
     if (!data) return <div>Loading...</div>
