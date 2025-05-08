@@ -55,7 +55,7 @@ app.get('/api/v1/test', (req, res) => {
 app.use('/api/v1/questions', authenticateUser, questionRouter);
 app.use('/api/v1/answers', authenticateUser, answerRouter);
 app.use('/api/v1/users', authenticateUser, userRouter);
-app.use('/api/v1/votes', authenticateUser, voteRouter);
+app.use('/api/v1/vote', authenticateUser, voteRouter);
 app.use('/api/v1/bookmark', authenticateUser, bookmarkRouter);
 app.use('/api/v1/auth', authRouter);
 
