@@ -208,3 +208,30 @@ export const validateUpdateUserInput = withValidationErrors([
 	body('location').notEmpty().withMessage('location is required'),
 	body('lastName').notEmpty().withMessage('last name is required'),
 ]);
+
+export const validateQuestionUser = withValidationErrors([
+	param('id').custom(async (value, { req }) => {
+		const question = await Question.findById(value);
+		if (question.createdBy.toString() !== req.user.userId) {
+			throw new BadRequestError('you are not the owner of this question');
+		}
+	}),
+])
+
+export const validateAnswerUser = withValidationErrors([
+	param('id').custom(async (value, { req }) => {
+		const answer = await Answer.findById(value);
+		if (answer.createdBy.toString() !== req.user.userId) {
+			throw new BadRequestError('you are not the owner of this answer');
+		}
+	}),
+])
+
+export const validateCommentUser = withValidationErrors([
+	param('id').custom(async (value, { req }) => {
+		const comment = await Comment.findById(value);
+		if (comment.createdBy.toString() !== req.user.userId) {
+			throw new BadRequestError('you are not the owner of this comment');
+		}
+	}),
+])

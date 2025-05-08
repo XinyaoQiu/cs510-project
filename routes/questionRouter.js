@@ -9,20 +9,20 @@ import {
 import {
     validateQuestionInput,
     validateQuestionIdParam,
+    validateQuestionUser,
 } from '../middleware/validationMiddleware.js';
-import { checkForTestUser } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
 router
     .route('/')
     .get(getAllQuestions)
-    .post(checkForTestUser, validateQuestionInput, createQuestion);
+    .post(validateQuestionInput, createQuestion);
 
 router
     .route('/:id')
     .get(validateQuestionIdParam, getQuestion)
-    .patch(checkForTestUser, validateQuestionInput, validateQuestionIdParam, updateQuestion)
-    .delete(checkForTestUser, validateQuestionIdParam, deleteQuestion);
+    .patch(validateQuestionInput, validateQuestionIdParam, validateQuestionUser, updateQuestion)
+    .delete(validateQuestionIdParam, validateQuestionUser, deleteQuestion);
 
 export default router;
