@@ -36,6 +36,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (res.ok) {
         const data = await res.json()
         setUser(data.user)
+        localStorage.setItem("userId", data.user._id);
       } else {
         setUser(null)
       }

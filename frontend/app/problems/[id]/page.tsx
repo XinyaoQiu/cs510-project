@@ -1,6 +1,6 @@
 "use client";
 
-import useSWR, { mutate } from 'swr';
+import useSWR, { mutate } from "swr";
 import { useParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,7 +14,10 @@ import { Separator } from "@/components/ui/separator";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AddAnswerModal from "@/components/ui/add-answer-modal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import EditQuestionModal from "@/components/ui/edit-question-modal";
+import EditAnswerModal from "@/components/ui/edit-answer-modal";
+import router from "next/router";
 
 const fetcher = (url: string) =>
   fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`, {
@@ -24,11 +27,56 @@ const fetcher = (url: string) =>
 export default function ProblemPage() {
   const { id: problemId } = useParams<{ id: string }>();
   const { data, error } = useSWR(`/api/v1/questions/${problemId}`, fetcher);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [showEditQuestionModal, setShowEditQuestionModal] = useState(false);
+  const [editingAnswer, setEditingAnswer] = useState<any | null>(null);
   const question = data?.question;
   const [showAnswerModal, setShowAnswerModal] = useState(false);
 
+  useEffect(() => {
+    setUserId(localStorage.getItem("userId"));
+  }, []);
+
   if (error) return <div>Failed to load</div>;
   if (!data) return <div>Loading...</div>;
+
+  const handleQuestionDelete = async () => {
+    if (!confirm("Are you sure you want to delete this question?")) return;
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/questions/${problemId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+      if (!res.ok) throw new Error("Failed to delete.");
+      alert("Deleted successfully.");
+      router.push("/problems");
+    } catch (err) {
+      console.error(err);
+      alert("Delete failed.");
+    }
+  };
+
+  const handleAnswerDelete = async (answerId: string) => {
+    if (!confirm("Are you sure you want to delete this answer?")) return;
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/answers/${answerId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+      if (!res.ok) throw new Error("Failed to delete.");
+      alert("Answer deleted.");
+      mutate(`/api/v1/questions/${problemId}`);
+    } catch (err) {
+      console.error(err);
+      alert("Delete failed.");
+    }
+  };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
@@ -45,12 +93,17 @@ export default function ProblemPage() {
 
   const handleAnswerSubmitSuccess = () => {
     setShowAnswerModal(false);
-    mutate(`/api/v1/questions/${problemId}`); // ✅ 刷新数据
+    mutate(`/api/v1/questions/${problemId}`); // 刷新数据
+  };
+
+  const handleAnswerEditSuccess = () => {
+    setEditingAnswer(null);
+    mutate(`/api/v1/questions/${problemId}`);
   };
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <Card className="mb-8">
+      <Card className="mb-8 relative">
         <CardHeader>
           <div className="flex flex-wrap gap-2 mb-2">
             <Badge
@@ -96,6 +149,24 @@ export default function ProblemPage() {
           </div>
           <div className="text-sm text-gray-500">ID: {question._id}</div>
         </CardFooter>
+        {userId === question.createdBy && (
+          <div className="absolute top-4 right-4 flex gap-2 z-10">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowEditQuestionModal(true)}
+            >
+              Edit
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleQuestionDelete}
+            >
+              Delete
+            </Button>
+          </div>
+        )}
       </Card>
 
       {question.answerDocs.length >= 0 && (
@@ -111,13 +182,31 @@ export default function ProblemPage() {
           <Separator className="mb-4" />
 
           {question.answerDocs.map((answer) => (
-            <Card key={answer._id} className="mb-4">
+            <Card key={answer._id} className="mb-4 relative">
               <CardContent className="pt-6">
                 <p className="text-gray-700">{answer.text}</p>
               </CardContent>
               <CardFooter className="flex justify-between text-sm text-gray-500">
                 <span>ID: {answer._id}</span>
               </CardFooter>
+              {userId === answer.createdBy && (
+                <div className="absolute top-4 right-4 flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditingAnswer(answer)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleAnswerDelete(answer._id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              )}
             </Card>
           ))}
         </div>
@@ -127,6 +216,23 @@ export default function ProblemPage() {
         <AddAnswerModal
           questionId={question._id}
           onClose={handleAnswerSubmitSuccess}
+        />
+      )}
+      
+      {showEditQuestionModal && (
+        <EditQuestionModal
+          question={question}
+          onClose={() => {
+            setShowEditQuestionModal(false);
+            mutate(`/api/v1/questions/${problemId}`);
+          }}
+        />
+      )}
+
+      {editingAnswer && (
+        <EditAnswerModal
+          answer={editingAnswer}
+          onClose={handleAnswerEditSuccess}
         />
       )}
     </div>
