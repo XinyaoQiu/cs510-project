@@ -18,9 +18,10 @@ import { useEffect, useState } from "react";
 import EditQuestionModal from "@/components/ui/edit-question-modal";
 import EditAnswerModal from "@/components/ui/edit-answer-modal";
 import router from "next/router";
+import { NEXT_PUBLIC_API_BASE_URL } from "@/lib/utils";
 
 const fetcher = (url: string) =>
-  fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`, {
+  fetch(`${NEXT_PUBLIC_API_BASE_URL}${url}`, {
     credentials: "include",
   }).then((res) => res.json());
 
@@ -44,7 +45,7 @@ export default function ProblemPage() {
     if (!confirm("Are you sure you want to delete this question?")) return;
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/questions/${problemId}`,
+        `${NEXT_PUBLIC_API_BASE_URL}/api/v1/questions/${problemId}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -63,7 +64,7 @@ export default function ProblemPage() {
     if (!confirm("Are you sure you want to delete this answer?")) return;
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/answers/${answerId}`,
+        `${NEXT_PUBLIC_API_BASE_URL}/api/v1/answers/${answerId}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -181,7 +182,7 @@ export default function ProblemPage() {
           </div>
           <Separator className="mb-4" />
 
-          {question.answerDocs.map((answer) => (
+          {question.answerDocs.map((answer: any) => (
             <Card key={answer._id} className="mb-4 relative">
               <CardContent className="pt-6">
                 <p className="text-gray-700">{answer.text}</p>
@@ -218,7 +219,7 @@ export default function ProblemPage() {
           onClose={handleAnswerSubmitSuccess}
         />
       )}
-      
+
       {showEditQuestionModal && (
         <EditQuestionModal
           question={question}

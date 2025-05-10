@@ -1,6 +1,7 @@
 // app/context/AuthContext.tsx
 'use client'
 
+import { NEXT_PUBLIC_API_BASE_URL } from '@/lib/utils'
 import { createContext, useContext, useEffect, useState } from 'react'
 
 interface User {
@@ -19,8 +20,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  fetchUser: () => {},
-  logout: () => {},
+  fetchUser: () => { },
+  logout: () => { },
 })
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -30,7 +31,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchUser = async () => {
     setLoading(true)
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/users/current-user`, {
+      const res = await fetch(`${NEXT_PUBLIC_API_BASE_URL}/api/v1/users/current-user`, {
         credentials: 'include',
       })
       if (res.ok) {
@@ -49,7 +50,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/logout`, {
+      await fetch(`${NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/logout`, {
         method: 'GET',
         credentials: 'include',
       })

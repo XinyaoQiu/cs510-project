@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
+import { NEXT_PUBLIC_API_BASE_URL } from "@/lib/utils";
 
 export function LoginButton() {
   const [open, setOpen] = useState(false);
@@ -27,7 +28,7 @@ export function LoginButton() {
     setLoading(true);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/login`,
+        `${NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

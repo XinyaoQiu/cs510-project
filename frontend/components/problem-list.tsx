@@ -17,9 +17,10 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useEffect, useState } from 'react';
+import { NEXT_PUBLIC_API_BASE_URL } from '@/lib/utils';
 
 
-const fetcher = (url: string) => fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`, {
+const fetcher = (url: string) => fetch(`${NEXT_PUBLIC_API_BASE_URL}${url}`, {
     credentials: "include"
 }).then(res => (res.json()))
 
@@ -46,7 +47,7 @@ export function ProblemList({ search, difficulty }: { search?: string, difficult
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {data.questions.map((problem) => (
+                {data.questions.map((problem: any) => (
                     <TableRow key={problem._id} onClick={() => router.push(`/problems/${problem._id}`)} className="cursor-pointer">
                         <TableCell>{problem.title}</TableCell>
                         <TableCell>{problem.company}</TableCell>

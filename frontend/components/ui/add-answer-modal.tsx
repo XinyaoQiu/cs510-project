@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { NEXT_PUBLIC_API_BASE_URL } from "@/lib/utils";
 
 export default function AddAnswerModal({
   questionId,
@@ -20,7 +21,7 @@ export default function AddAnswerModal({
 
   const handleSubmit = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/answers`, {
+      const res = await fetch(`${NEXT_PUBLIC_API_BASE_URL}/api/v1/answers`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

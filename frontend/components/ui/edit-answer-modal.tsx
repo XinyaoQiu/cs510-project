@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { NEXT_PUBLIC_API_BASE_URL } from "@/lib/utils";
 
 export default function EditAnswerModal({
   answer,
@@ -21,7 +22,7 @@ export default function EditAnswerModal({
   const handleSubmit = async () => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/answers/${answer._id}`,
+        `${NEXT_PUBLIC_API_BASE_URL}/api/v1/answers/${answer._id}`,
         {
           method: "PATCH",
           headers: {
@@ -30,7 +31,7 @@ export default function EditAnswerModal({
           credentials: "include",
           body: JSON.stringify({
             text,
-            questionId: answer.questionId, 
+            questionId: answer.questionId,
           }),
         }
       );

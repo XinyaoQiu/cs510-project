@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { NEXT_PUBLIC_API_BASE_URL } from "@/lib/utils";
 
 export default function EditQuestionModal({
   question,
@@ -39,7 +40,7 @@ export default function EditQuestionModal({
   const handleSubmit = async () => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/questions/${question._id}`,
+        `${NEXT_PUBLIC_API_BASE_URL}/api/v1/questions/${question._id}`,
         {
           method: "PATCH",
           headers: {
