@@ -58,6 +58,8 @@ const recommendQuestions = async (userId, limit) => {
 		.slice(0, 2)
 		.map(([company]) => company);
 
+	const seenIds = new Set();
+
 	let questions = await Question.find({
 		category: { $in: topCategories },
 		difficulty: { $in: topDifficulties },
@@ -68,11 +70,24 @@ const recommendQuestions = async (userId, limit) => {
 		.limit(limit)
 		.lean();
 
+	questions.forEach(q => seenIds.add(q._id.toString()));
+
 	if (questions.length < limit) {
-		questions.push(...(await Question.find().sort({ createdAt: -1 }).limit(limit - questions.length)));
+		const fallback = await Question.find()
+			.sort({ createdAt: -1 })
+			.lean();
+
+		for (const q of fallback) {
+			const id = q._id.toString();
+			if (!seenIds.has(id)) {
+				questions.push(q);
+				seenIds.add(id);
+				if (questions.length === limit) break;
+			}
+		}
 	}
 
-	return questions;
+	return questions.slice(0, limit);
 };
 
 export const getRecommendations = async (req, res) => {
