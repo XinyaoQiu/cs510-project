@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import useSWR, { mutate } from "swr";
@@ -181,7 +182,7 @@ export default function ProblemPage() {
           </div>
           <Separator className="mb-4" />
 
-          {question.answerDocs.map((answer) => (
+          {question.answerDocs.map((answer: any) => (
             <Card key={answer._id} className="mb-4 relative">
               <CardContent className="pt-6">
                 <p className="text-gray-700">{answer.text}</p>
@@ -218,7 +219,7 @@ export default function ProblemPage() {
           onClose={handleAnswerSubmitSuccess}
         />
       )}
-      
+
       {showEditQuestionModal && (
         <EditQuestionModal
           question={question}

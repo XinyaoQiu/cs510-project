@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useState } from "react"
@@ -36,7 +37,7 @@ export function SignUpButton() {
         setEmail("")
         setPassword("")
         setConfirm("")
-      }    
+    }
 
     const handleSignUp = async () => {
         if (password !== confirm) {
@@ -65,7 +66,7 @@ export function SignUpButton() {
             setLoading(false)
         }
     }
-    
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -81,7 +82,7 @@ export function SignUpButton() {
                 <div className="grid gap-4 py-4">
                     <Input placeholder="Name" value={name} onChange={e => setName(e.target.value)} />
                     <Input placeholder="Last Name" value={lastName} onChange={e => setLastName(e.target.value)} />
-                    <Input placeholder="Location" value={location} onChange={e => setLocation(e.target.value)} />    
+                    <Input placeholder="Location" value={location} onChange={e => setLocation(e.target.value)} />
                     <Input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
                     <Input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
                     <Input placeholder="Confirm Password" type="password" value={confirm} onChange={e => setConfirm(e.target.value)} />

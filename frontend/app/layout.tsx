@@ -4,7 +4,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -12,8 +11,6 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { LoginButton } from "@/components/login-button";
-import { SignUpButton } from "@/components/sign-up-button";
 import { AuthProvider } from "@/context/AuthContext";
 import { ClientAuthUI } from "@/components/ClientAuthUI";
 

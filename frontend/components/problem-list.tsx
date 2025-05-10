@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import useSWR from 'swr'
 import { useRouter } from 'next/navigation';
@@ -46,7 +47,7 @@ export function ProblemList({ search, difficulty }: { search?: string, difficult
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {data.questions.map((problem) => (
+                {data.questions.map((problem: any) => (
                     <TableRow key={problem._id} onClick={() => router.push(`/problems/${problem._id}`)} className="cursor-pointer">
                         <TableCell>{problem.title}</TableCell>
                         <TableCell>{problem.company}</TableCell>
