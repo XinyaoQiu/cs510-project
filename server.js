@@ -26,11 +26,13 @@ import { authenticateUser } from './middleware/authMiddleware.js';
 //   api_secret: process.env.CLOUD_API_SECRET,
 // });
 
-const dev = process.env.NODE_ENV !== 'production';
-const nextApp = next({ dev, dir: './frontend' });  // Point to the Next.js frontend directory
-const handle = nextApp.getRequestHandler();
+// const dev = process.env.NODE_ENV !== 'production';
+// const nextApp = next({ dev, dir: './frontend' });  // Point to the Next.js frontend directory
+// const handle = nextApp.getRequestHandler();
 
 const app = express();
+
+app.set('trust proxy', 1);
 
 if (process.env.NODE_ENV === 'development') {
 	app.use(morgan('dev'));
@@ -40,11 +42,11 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(helmet({
 	contentSecurityPolicy: false
-  }));
+}));
 app.use(mongoSanitize());
 
 app.use(cors({
-	origin: 'http://localhost:3000',
+	origin: true,
 	credentials: true
 }));
 
@@ -60,11 +62,11 @@ app.use('/api/v1/bookmark', authenticateUser, bookmarkRouter);
 app.use('/api/v1/auth', authRouter);
 
 // Handle frontend requests through Next
-await nextApp.prepare();  // Wait for Next.js to boot
+// await nextApp.prepare();  // Wait for Next.js to boot
 
-app.all('*', (req, res) => {
-	return handle(req, res);  // Let Next handle everything else
-});
+// app.all('*', (req, res) => {
+// 	return handle(req, res);  // Let Next handle everything else
+// });
 
 app.use('*', (req, res) => {
 	res.status(404).json({ msg: 'not found' });
@@ -77,7 +79,7 @@ const port = process.env.PORT || 5000;
 try {
 	await mongoose.connect(process.env.MONGO_URL);
 	app.listen(port, () => {
-		console.log(`Server is running on http://localhost:${port}`);
+		console.log(`Server is running on port ${port}`);
 	});
 } catch (error) {
 	console.log(error);
