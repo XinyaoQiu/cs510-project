@@ -11,7 +11,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 
-const fetcher = (url: string) => fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`, {
+const fetcher = (url: string) => fetch(url, {
     credentials: "include"
 }).then(res => (res.json()))
 
