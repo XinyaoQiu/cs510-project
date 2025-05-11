@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchUser = async () => {
     setLoading(true)
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/users/current-user`, {
+      const res = await fetch(`/api/v1/users/current-user`, {
         credentials: 'include',
       })
       if (res.ok) {
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/logout`, {
+      await fetch(`/api/v1/auth/logout`, {
         method: 'GET',
         credentials: 'include',
       })

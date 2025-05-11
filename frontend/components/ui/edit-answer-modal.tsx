@@ -22,7 +22,7 @@ export default function EditAnswerModal({
   const handleSubmit = async () => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/answers/${answer._id}`,
+        `/api/v1/answers/${answer._id}`,
         {
           method: "PATCH",
           headers: {

@@ -20,7 +20,7 @@ export default function AddAnswerModal({
 
   const handleSubmit = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/answers`, {
+      const res = await fetch(`/api/v1/answers`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

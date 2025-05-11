@@ -28,7 +28,7 @@ export function LoginButton() {
     setLoading(true);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/login`,
+        `/api/v1/auth/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -21,7 +21,7 @@ import EditAnswerModal from "@/components/ui/edit-answer-modal";
 import router from "next/router";
 
 const fetcher = (url: string) =>
-  fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`, {
+  fetch(url, {
     credentials: "include",
   }).then((res) => res.json());
 
@@ -45,7 +45,7 @@ export default function ProblemPage() {
     if (!confirm("Are you sure you want to delete this question?")) return;
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/questions/${problemId}`,
+        `/api/v1/questions/${problemId}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -64,7 +64,7 @@ export default function ProblemPage() {
     if (!confirm("Are you sure you want to delete this answer?")) return;
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/answers/${answerId}`,
+        `/api/v1/answers/${answerId}`,
         {
           method: "DELETE",
           credentials: "include",

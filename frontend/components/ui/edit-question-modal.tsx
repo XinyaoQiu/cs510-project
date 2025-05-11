@@ -40,7 +40,7 @@ export default function EditQuestionModal({
   const handleSubmit = async () => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/questions/${question._id}`,
+        `/api/v1/questions/${question._id}`,
         {
           method: "PATCH",
           headers: {
