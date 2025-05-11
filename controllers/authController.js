@@ -20,6 +20,7 @@ export const register = async (req, res) => {
 		httpOnly: true,
 		expires: new Date(Date.now() + oneDay),
 		secure: process.env.NODE_ENV === 'production',
+		sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
 	});
 
 	res.status(StatusCodes.CREATED).json({
