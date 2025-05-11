@@ -21,7 +21,7 @@ import EditAnswerModal from "@/components/ui/edit-answer-modal";
 import router from "next/router";
 
 const fetcher = (url: string) =>
-  fetch(url, {
+  fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`, {
     credentials: "include",
   }).then((res) => res.json());
 

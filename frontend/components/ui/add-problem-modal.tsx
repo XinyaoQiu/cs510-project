@@ -31,7 +31,7 @@ export default function AddProblemModal({ onClose }: { onClose: () => void }) {
 
   const handleSubmit = async () => {
     try {
-      const res = await fetch(`/api/v1/questions`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/questions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
