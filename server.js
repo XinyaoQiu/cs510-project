@@ -46,7 +46,7 @@ app.use(helmet({
 app.use(mongoSanitize());
 
 app.use(cors({
-	origin: true,
+	origin: ['http://localhost:3000', '*'],
 	credentials: true
 }));
 
